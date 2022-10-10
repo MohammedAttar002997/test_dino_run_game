@@ -1,5 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:flame/parallax.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +15,11 @@ import '/models/player_data.dart';
 import '/widgets/pause_menu.dart';
 import '/widgets/game_over_menu.dart';
 
+enum Direction { up, down, left, right, none }
+
 // This is the main flame game class.
-class DinoRun extends FlameGame with TapDetector, HasCollisionDetection {
+class DinoRun extends FlameGame
+    with TapDetector, HasCollisionDetection, KeyboardEvents {
   // List of all the image assets.
   static const _imageAssets = [
     'DinoSprites - tard.png',
@@ -79,6 +83,21 @@ class DinoRun extends FlameGame with TapDetector, HasCollisionDetection {
     add(parallaxBackground);
 
     return super.onLoad();
+  }
+
+  @override
+  KeyEventResult onKeyEvent(
+      RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    final isKeyDown = event is RawKeyDownEvent;
+    Direction? keyDirection;
+    if (event.logicalKey == LogicalKeyboardKey.keyW ||
+        event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      keyDirection = Direction.up;
+    }
+    if (isKeyDown && keyDirection != null) {
+      _dino.jump();
+    }
+    return super.onKeyEvent(event, keysPressed);
   }
 
   /// This method add the already created [Dino]
